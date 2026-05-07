@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>Modelos OSI y TCP/IP · DCCE ESPE · Ing. Julio Gancino</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', 'Roboto', system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, #0a1929 0%, #0d2137 40%, #132f4c 100%);
+      color: #e6edf3;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    .presentation-wrapper {
+      width: 100%;
+      max-width: 1200px;
+      height: 92vh;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0.5rem;
+    }
+
+    /* Header institucional */
+    .espe-header {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 2rem;
+      background: rgba(10, 25, 45, 0.85);
+      backdrop-filter: blur(12px);
+      border-radius: 3rem;
+      margin-bottom: 0.8rem;
+      border: 1px solid rgba(74, 144, 226, 0.3);
+      flex-wrap: wrap;
+      gap: 1rem;
+      z-index: 10;
+    }
+
+    .logo-title {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .logo-espe {
+      background: white;
+      border-radius: 15px;
+      padding: 0.3rem;
+      width: 55px;
+      height: 55px;
+      object-fit: contain;
+      box-shadow: 0 6px 14px rgba(0, 160, 255, 0.3);
+    }
+
+    .docente-info h1 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: #ffffff;
+      line-height: 1.2;
+    }
+
+    .docente-info .sub {
+      font-size: 0.8rem;
+      color: #a0c4f0;
+    }
+
+    .badge-dcce {
+      background: #1a3350;
+      padding: 0.5rem 1.2rem;
+      border-radius: 2rem;
+      font-weight: 600;
+      color: #c3e0ff;
+      border: 1px solid #4a90e2;
+      font-size: 0.85rem;
+    }
+
+    /* Contenedor principal de slides con flechas laterales */
+    .slides-main-container {
+      width: 100%;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    /* Flechas laterales siempre visibles */
+    .arrow-btn {
+      background: rgba(30, 60, 100, 0.85);
+      backdrop-filter: blur(12px);
+      border: 2px solid #4a90e2;
+      color: white;
+      font-size: 2.5rem;
+      width: 55px;
+      height: 55px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+      z-index: 20;
+      flex-shrink: 0;
+    }
+
+    .arrow-btn:hover {
+      background: #4a90e2;
+      transform: scale(1.1);
+      box-shadow: 0 12px 25px rgba(74, 144, 226, 0.5);
+    }
+
+    .arrow-btn:active {
+      transform: scale(0.95);
+    }
+
+    .arrow-btn.disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+      pointer-events: none;
+      border-color: #555;
+    }
+
+    /* Contenedor de slides */
+    .slides-container {
+      flex: 1;
+      height: 100%;
+      overflow: hidden;
+      border-radius: 2.5rem;
+      background: rgba(12, 25, 45, 0.6);
+      backdrop-filter: blur(18px);
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(74, 144, 226, 0.3);
+      position: relative;
+    }
+
+    .slides-track {
+      display: flex;
+      height: 100%;
+      transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      will-change: transform;
+    }
+
+    .slide {
+      min-width: 100%;
+      height: 100%;
+      overflow-y: auto;
+      padding: 2rem 2.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      background: rgba(10, 22, 40, 0.75);
+      border-radius: 2.5rem;
+    }
+
+    .slide::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .slide::-webkit-scrollbar-thumb {
+      background: #4a90e2;
+      border-radius: 10px;
+    }
+
+    h2 {
+      font-size: 2rem;
+      font-weight: 650;
+      color: #d4e6ff;
+      border-left: 7px solid #4a90e2;
+      padding-left: 1.4rem;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    h3 {
+      font-size: 1.35rem;
+      color: #b0d0ff;
+      margin: 0.8rem 0 0.3rem;
+    }
+
+    .flex-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+      align-items: flex-start;
+    }
+
+    .card {
+      background: rgba(18, 32, 50, 0.8);
+      border-radius: 1.6rem;
+      padding: 1.4rem;
+      flex: 1 1 260px;
+      border: 1px solid #2e4b6e;
+      transition: transform 0.2s, box-shadow 0.3s;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 18px 28px -8px #0a1e30;
+    }
+
+    .layer {
+      padding: 0.65rem 1.2rem;
+      border-radius: 1rem;
+      background: #1a2e44;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 500;
+      border-left: 6px solid;
+      margin-bottom: 0.35rem;
+    }
+
+    .layer .proto {
+      font-size: 0.73rem;
+      background: rgba(0, 0, 0, 0.35);
+      padding: 0.2rem 0.7rem;
+      border-radius: 1rem;
+    }
+
+    .osi-7 { border-left-color: #f39c12; }
+    .osi-6 { border-left-color: #e67e22; }
+    .osi-5 { border-left-color: #e74c3c; }
+    .osi-4 { border-left-color: #2ecc71; }
+    .osi-3 { border-left-color: #3498db; }
+    .osi-2 { border-left-color: #9b59b6; }
+    .osi-1 { border-left-color: #1abc9c; }
+    .tcp-4 { border-left-color: #f1c40f; }
+    .tcp-3 { border-left-color: #2ecc71; }
+    .tcp-2 { border-left-color: #3498db; }
+    .tcp-1 { border-left-color: #9b59b6; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #0e1f30;
+      border-radius: 1.2rem;
+      overflow: hidden;
+    }
+
+    th {
+      background: #1e3a55;
+      padding: 0.8rem;
+      font-weight: 600;
+    }
+
+    td,
+    th {
+      padding: 0.7rem 1rem;
+      border-bottom: 1px solid #2e4055;
+    }
+
+    button {
+      background: #2c5282;
+      border: none;
+      color: white;
+      font-weight: 600;
+      padding: 0.6rem 1.4rem;
+      border-radius: 2.5rem;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      background: #4a90e2;
+    }
+
+    /* Controles inferiores */
+    .nav-controls {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 2rem;
+      margin-top: 0.8rem;
+    }
+
+    .dot-indicators {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: #2a4660;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .dot.active {
+      background: #4a90e2;
+      box-shadow: 0 0 12px #4a90e2;
+      transform: scale(1.3);
+    }
+
+    .page-indicator {
+      color: #aac8ff;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    svg {
+      max-width: 100%;
+      height: auto;
+    }
+
+    .highlight {
+      color: #f1c40f;
+      font-weight: 700;
+    }
+
+    ul {
+      padding-left: 1.2rem;
+    }
+
+    li {
+      margin-bottom: 0.3rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="presentation-wrapper">
+    <!-- HEADER FIJO -->
+    <div class="espe-header">
+      <div class="logo-title">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtbSDyHySlfGVRvshDVAp9wBI8RQ-M6qpMBw&s" alt="Logo DCCE ESPE" class="logo-espe">
+        <div class="docente-info">
+          <h1>Modelos OSI y TCP/IP</h1>
+          <div class="sub">Ing. Julio Gancino · Redes de Computadoras · ESPE</div>
+        </div>
+      </div>
+      <div class="badge-dcce">DCCE · Depto. Ciencias de la Computación</div>
+    </div>
+
+    <!-- CONTENEDOR CON FLECHAS LATERALES -->
+    <div class="slides-main-container">
+      <!-- FLECHA IZQUIERDA -->
+      <div class="arrow-btn" id="prevArrow" onclick="changeSlide(-1)">❮</div>
+
+      <!-- SLIDES -->
+      <div class="slides-container" id="slidesContainer">
+        <div class="slides-track" id="slidesTrack">
+
+          <!-- SLIDE 0: PORTADA -->
+          <div class="slide" style="justify-content: center; align-items: center; text-align: center;">
+            <svg width="170" height="170" viewBox="0 0 180 180" style="margin-bottom: 1rem;">
+              <circle cx="90" cy="90" r="80" fill="none" stroke="#4a90e2" stroke-width="4" stroke-dasharray="8 6">
+                <animateTransform attributeName="transform" type="rotate" from="0 90 90" to="360 90 90" dur="20s" repeatCount="indefinite" />
+              </circle>
+              <text x="90" y="75" text-anchor="middle" fill="white" font-size="22" font-weight="bold">OSI</text>
+              <text x="90" y="105" text-anchor="middle" fill="#f1c40f" font-size="22" font-weight="bold">TCP/IP</text>
+              <text x="90" y="135" text-anchor="middle" fill="#a0c4f0" font-size="11">Modelos de Referencia</text>
+            </svg>
+            <h2 style="border-left: none; font-size: 2.6rem;">🌐 Modelos de Referencia<br>OSI/ISO y TCP/IP</h2>
+            <p style="font-size:1.3rem; color:#bdd6f0;">Una comparación exhaustiva para estudiantes de Redes</p>
+            <p style="font-size:1rem; margin-top:1rem;">Ing. Julio Gancino · Universidad de las Fuerzas Armadas ESPE</p>
+            <p style="color:#8aa0b8; margin-top: 1rem;">Use las flechas laterales (❮ ❯) para navegar entre secciones</p>
+          </div>
+
+          <!-- SLIDE 1: Contexto Histórico -->
+          <div class="slide">
+            <h2>📜 1. Contexto Histórico y Necesidad</h2>
+            <div class="flex-row">
+              <div class="card">
+                <h3>Problema inicial (años 70)</h3>
+                <p>Cada fabricante (IBM, DEC, Xerox) implementaba su propia pila de protocolos. La incompatibilidad impedía la comunicación entre sistemas heterogéneos.</p>
+                <p><span class="highlight">Solución:</span> Modelos de referencia que estandarizan las funciones de comunicación.</p>
+              </div>
+              <div class="card">
+                <h3>ISO y ARPA</h3>
+                <p><strong>ISO (International Organization for Standardization)</strong> inició en 1977 el desarrollo del modelo OSI, publicado en 1984 como ISO/IEC 7498.</p>
+                <p><strong>DARPA (Defense Advanced Research Projects Agency)</strong> financió el desarrollo de TCP/IP a finales de los 70, base de ARPANET.</p>
+              </div>
+            </div>
+            <p><span class="highlight">Dato real:</span> El 1 de enero de 1983, ARPANET migró oficialmente a TCP/IP, marcando el nacimiento de Internet tal como lo conocemos.</p>
+          </div>
+
+          <!-- SLIDE 2: ¿Qué es un Modelo de Referencia? -->
+          <div class="slide">
+            <h2>🧩 2. ¿Qué es un Modelo de Referencia?</h2>
+            <p>Un modelo de referencia es una <strong>división estructurada en capas</strong> que describe las funciones necesarias para la comunicación entre sistemas. Cada capa ofrece servicios a la capa superior y utiliza servicios de la capa inferior.</p>
+            <div class="flex-row" style="margin-top:1rem;">
+              <div class="card">
+                <h3>Ventajas de las capas</h3>
+                <ul>
+                  <li>✅ Modularidad y desarrollo independiente</li>
+                  <li>✅ Interoperabilidad entre fabricantes</li>
+                  <li>✅ Facilita la enseñanza y solución de problemas</li>
+                  <li>✅ Cambios en una capa no afectan a las demás</li>
+                </ul>
+              </div>
+              <div class="card">
+                <h3>Analogía del envío postal</h3>
+                <p>📝 Carta (datos) → ✉️ Sobre (encabezado) → 🏢 Oficina postal (enrutamiento) → 🚚 Transporte (medio físico).</p>
+                <p>Cada nivel tiene su propia responsabilidad y no necesita conocer los detalles internos de los otros.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- SLIDE 3: Modelo OSI – Visión General -->
+          <div class="slide">
+            <h2>🏛️ 3. Modelo OSI – Visión General</h2>
+            <p>El modelo <strong>Open Systems Interconnection</strong> consta de 7 capas. Fue desarrollado por ISO y estandarizado en 1984 (ISO/IEC 7498-1). Es un modelo teórico que sirve como referencia para entender la comunicación en redes.</p>
+            <div class="osi-layers" style="max-width: 600px; margin: 0 auto;">
+              <div class="layer osi-7"><span>7. Aplicación</span><span class="proto">HTTP, FTP, SMTP, DNS, Telnet</span></div>
+              <div class="layer osi-6"><span>6. Presentación</span><span class="proto">SSL/TLS, MIME, JPEG, ASCII</span></div>
+              <div class="layer osi-5"><span>5. Sesión</span><span class="proto">NetBIOS, PPTP, RPC, Sockets</span></div>
+              <div class="layer osi-4"><span>4. Transporte</span><span class="proto">TCP, UDP, SCTP</span></div>
+              <div class="layer osi-3"><span>3. Red</span><span class="proto">IP, ICMP, OSPF, BGP, IPsec</span></div>
+              <div class="layer osi-2"><span>2. Enlace de datos</span><span class="proto">Ethernet, PPP, MAC/LLC, ARP</span></div>
+              <div class="layer osi-1"><span>1. Física</span><span class="proto">RS-232, 1000BASE-T, fibra óptica</span></div>
+            </div>
+            <p>Nemotecnia en inglés: <span class="highlight">"Please Do Not Throw Sausage Pizza Away"</span> (Physical, Data Link, Network, Transport, Session, Presentation, Application).</p>
+          </div>
+
+          <!-- SLIDE 4: OSI Capas 1 a 4 – Detalle Técnico -->
+          <div class="slide">
+            <h2>🔍 4. OSI Capas 1 a 4 – Detalle Técnico</h2>
+            <div class="flex-row">
+              <div class="card">
+                <h3>Capa 1 – Física</h3>
+                <p>Transmisión de bits a través del medio físico. Define voltajes, conectores, frecuencias, modulación. Ej: IEEE 802.3 (Ethernet), fibra óptica, cable coaxial, RJ45.</p>
+                <p>Unidad de datos: <span class="highlight">bit</span>.</p>
+                <p>Equipos: hubs, repetidores, cables, conectores.</p>
+              </div>
+              <div class="card">
+                <h3>Capa 2 – Enlace de datos</h3>
+                <p>Control de acceso al medio (MAC) y detección de errores (CRC). Subcapas LLC y MAC. Direcciones físicas (MAC address de 48 bits).</p>
+                <p>Unidad: <span class="highlight">trama (frame)</span>.</p>
+                <p>Protocolos: Ethernet, PPP, HDLC, Frame Relay. </p>
+                <p>Equipos: switches, bridges.</p>
+              </div>
+            </div>
+            <div class="flex-row">
+              <div class="card">
+                <h3>Capa 3 – Red</h3>
+                <p>Enrutamiento y direccionamiento lógico (IP). Determina la mejor ruta entre origen y destino. Control de congestión.</p>
+                <p>Unidad: <span class="highlight">paquete</span>.</p>
+                <p>Protocolos: IPv4, IPv6, ICMP, OSPF, BGP, RIP. </p>
+                <p>Equipos: routers, capa 3 switches.</p>
+              </div>
+              <div class="card">
+                <h3>Capa 4 – Transporte</h3>
+                <p>Comunicación extremo a extremo confiable. Control de flujo, segmentación, corrección de errores, control de congestión.</p>
+                <p>Unidad: <span class="highlight">segmento (TCP) / datagrama (UDP)</span>.</p>
+                <p>Protocolos: TCP (conexión, confiable), UDP (sin conexión, rápido), SCTP.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- SLIDE 5: OSI Capas 5 a 7 – Detalle Técnico -->
+          <div class="slide">
+            <h2>🔍 5. OSI Capas 5 a 7 – Detalle Técnico</h2>
+            <div class="flex-row">
+              <div class="card">
+                <h3>Capa 5 – Sesión</h3>
+                <p>Gestiona el diálogo entre aplicaciones. Establece, mantiene y finaliza sesiones. Sincronización y puntos de control para recuperación.</p>
+                <p>Protocolos: NetBIOS, PPTP, RPC (Remote Procedure Call), Sockets de Berkeley.</p>
+              </div>
+              <div class="card">
+                <h3>Capa 6 – Presentación</h3>
+                <p>"Traductor" de formatos. Compresión, cifrado y conversión de datos (ASCII, EBCDIC, JPEG, MPEG, GIF). SSL/TLS opera en esta capa.</p>
+                <p>Garantiza que los datos enviados por la capa de aplicación de un sistema sean legibles por la capa de aplicación de otro.</p>
+              </div>
+              <div class="card">
+                <h3>Capa 7 – Aplicación</h3>
+                <p>Interfaz con el usuario y servicios de red. No es la aplicación en sí, sino los protocolos que esta utiliza para comunicarse.</p>
+                <p>Protocolos: HTTP (Web), FTP (archivos), SMTP (correo), DNS (nombres), Telnet, SNMP, DHCP.</p>
+              </div>
+            </div>
+            <p style="margin-top:1rem;"><span class="highlight">Dato importante:</span> En la práctica, las capas 5 (Sesión) y 6 (Presentación) a menudo se implementan dentro de la aplicación, lo que llevó al modelo TCP/IP a fusionarlas en una sola capa de Aplicación.</p>
+          </div>
+
+          <!-- SLIDE 6: Modelo TCP/IP – Visión General -->
+          <div class="slide">
+            <h2>🌍 6. Modelo TCP/IP – Visión General</h2>
+            <p>Desarrollado por DARPA y documentado formalmente en <strong>RFC 1122</strong> (1989). Consta de <strong>4 capas</strong> y es el modelo que realmente impulsa Internet. A diferencia de OSI, TCP/IP se desarrolló a partir de protocolos existentes.</p>
+            <div class="tcp-layers" style="max-width: 500px; margin: 0 auto;">
+              <div class="layer tcp-4"><span>4. Aplicación</span><span class="proto">HTTP, FTP, DNS, SMTP, SSH, DHCP</span></div>
+              <div class="layer tcp-3"><span>3. Transporte</span><span class="proto">TCP, UDP</span></div>
+              <div class="layer tcp-2"><span>2. Internet</span><span class="proto">IP (IPv4, IPv6), ICMP, ARP, IGMP</span></div>
+              <div class="layer tcp-1"><span>1. Acceso a la Red</span><span class="proto">Ethernet, Wi-Fi (802.11), PPP, DSL</span></div>
+            </div>
+            <p style="margin-top:1rem;"><span class="highlight">RFC 1122:</span> "Requirements for Internet Hosts – Communication Layers" define formalmente la arquitectura TCP/IP y los requisitos de cada capa.</p>
+          </div>
+
+          <!-- SLIDE 7: TCP/IP – Detalle de Capas -->
+          <div class="slide">
+            <h2>📡 7. TCP/IP – Detalle de Capas</h2>
+            <div class="flex-row">
+              <div class="card">
+                <h3>Capa de Aplicación</h3>
+                <p>Fusiona las capas 5-6-7 de OSI. Provee servicios directamente a las aplicaciones. Protocolos: HTTP (web, puerto 80), HTTPS (443), SMTP (25), FTP (21), DNS (53), DHCP, Telnet, SSH (22).</p>
+              </div>
+              <div class="card">
+                <h3>Capa de Transporte</h3>
+                <p>Similar a OSI capa 4. <strong>TCP:</strong> confiable, orientado a conexión, control de congestión, retransmisión. <strong>UDP:</strong> rápido, sin conexión, para streaming, VoIP y DNS.</p>
+              </div>
+            </div>
+            <div class="flex-row">
+              <div class="card">
+                <h3>Capa de Internet</h3>
+                <p>Corresponde a la capa 3 de OSI. Encamina paquetes a través de redes interconectadas. <strong>IPv4:</strong> direcciones de 32 bits (4.3 mil millones). <strong>IPv6:</strong> 128 bits (340 sextillones). ICMP para diagnóstico (ping, traceroute).</p>
+              </div>
+              <div class="card">
+                <h3>Capa de Acceso a la Red</h3>
+                <p>Agrupa capas 1 y 2 de OSI. Maneja el hardware, direcciones MAC, acceso al medio físico. Ethernet (IEEE 802.3), Wi-Fi (IEEE 802.11), PPP, DOCSIS (cable).</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- SLIDE 8: Comparación Visual OSI vs TCP/IP -->
+          <div class="slide">
+            <h2>⚖️ 8. Comparación Visual OSI vs TCP/IP</h2>
+            <div style="display:flex; justify-content:center; gap:2rem; align-items:flex-start; flex-wrap:wrap;">
+              <svg viewBox="0 0 300 380" width="300" height="380" xmlns="http://www.w3.org/2000/svg">
+                <text x="60" y="25" fill="#f39c12" font-weight="bold" font-size="14">Modelo OSI (7 capas)</text>
+                <text x="200" y="25" fill="#f1c40f" font-weight="bold" font-size="14">TCP/IP (4 capas)</text>
+                <line x1="150" y1="10" x2="150" y2="370" stroke="#335577" stroke-width="1.8" stroke-dasharray="5" />
+                <rect x="15" y="40" width="120" height="38" rx="8" fill="#f39c12" /><text x="30" y="64" fill="white" font-size="11">7. Aplicación</text>
+                <rect x="15" y="84" width="120" height="38" rx="8" fill="#e67e22" /><text x="25" y="108" fill="white" font-size="11">6. Presentación</text>
+                <rect x="15" y="128" width="120" height="38" rx="8" fill="#e74c3c" /><text x="35" y="152" fill="white" font-size="11">5. Sesión</text>
+                <rect x="15" y="172" width="120" height="38" rx="8" fill="#2ecc71" /><text x="25" y="196" fill="white" font-size="11">4. Transporte</text>
+                <rect x="15" y="216" width="120" height="38" rx="8" fill="#3498db" /><text x="45" y="240" fill="white" font-size="11">3. Red</text>
+                <rect x="15" y="260" width="120" height="38" rx="8" fill="#9b59b6" /><text x="15" y="284" fill="white" font-size="11">2. Enlace datos</text>
+                <rect x="15" y="304" width="120" height="38" rx="8" fill="#1abc9c" /><text x="42" y="328" fill="white" font-size="11">1. Física</text>
+                <rect x="165" y="40" width="120" height="80" rx="8" fill="#f1c40f" /><text x="183" y="85" fill="black" font-size="12" font-weight="600">Aplicación</text>
+                <rect x="165" y="172" width="120" height="38" rx="8" fill="#2ecc71" /><text x="180" y="196" fill="white" font-size="11">Transporte</text>
+                <rect x="165" y="216" width="120" height="38" rx="8" fill="#3498db" /><text x="190" y="240" fill="white" font-size="11">Internet</text>
+                <rect x="165" y="260" width="120" height="82" rx="8" fill="#9b59b6" /><text x="178" y="307" fill="white" font-size="11">Acceso a la Red</text>
+                <circle cx="150" cy="150" r="5" fill="#f1c40f"><animate attributeName="opacity" values="0.2;1;0.2" dur="2s" repeatCount="indefinite" /></circle>
+              </svg>
+              <div style="max-width:350px;">
+                <p><span class="highlight">OSI:</span> modelo teórico/educativo. Separa claramente sesión, presentación y aplicación.</p>
+                <p><span class="highlight">TCP/IP:</span> modelo práctico. Agrupa las capas superiores en una sola "Aplicación" y las inferiores en "Acceso a la Red".</p>
+                <p>Ambos comparten las capas de Transporte y Red (Internet) con funciones muy similares.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- SLIDE 9: Tabla Comparativa Exhaustiva -->
+          <div class="slide">
+            <h2>📊 9. Tabla Comparativa Exhaustiva</h2>
+            <table>
+              <tr><th>Característica</th><th>Modelo OSI</th><th>Modelo TCP/IP</th></tr>
+              <tr><td>Número de capas</td><td>7</td><td>4</td></tr>
+              <tr><td>Año de publicación</td><td>1984 (ISO/IEC 7498)</td><td>1989 (RFC 1122)</td></tr>
+              <tr><td>Desarrollador</td><td>ISO (Organización Internacional de Normalización)</td><td>DARPA / IETF (Internet Engineering Task Force)</td></tr>
+              <tr><td>Enfoque</td><td>Teórico, genérico, independiente de protocolos</td><td>Práctico, basado en protocolos existentes</td></tr>
+              <tr><td>Capa de aplicación</td><td>Dividida en Aplicación, Presentación, Sesión (3 capas)</td><td>Una sola capa de Aplicación</td></tr>
+              <tr><td>Capa de transporte</td><td>Orientado a conexión y no conexión</td><td>TCP (conexión, confiable) y UDP (sin conexión)</td></tr>
+              <tr><td>Capa de red</td><td>Servicios de red, enrutamiento</td><td>Internet (IP, enrutamiento, direccionamiento)</td></tr>
+              <tr><td>Capas inferiores</td><td>Enlace de datos + Física (2 capas separadas)</td><td>Acceso a la Red (1 capa que agrupa ambas)</td></tr>
+              <tr><td>Protocolos definidos</td><td>Genérico, no obliga protocolos específicos</td><td>Específicos: IP, TCP, UDP, HTTP, FTP, etc.</td></tr>
+              <tr><td>Uso actual</td><td>Referencia académica y de diseño de redes</td><td>Implementación real de Internet y redes modernas</td></tr>
+            </table>
+          </div>
+
+          <!-- SLIDE 10: Encapsulación de Datos -->
+          <div class="slide">
+            <h2>📦 10. Encapsulación de Datos</h2>
+            <p>En el origen, los datos descienden por las capas y cada una añade su <strong>encabezado (header)</strong> con información de control. En la capa de enlace se añade también un <strong>tráiler</strong> para detección de errores. En el destino se invierte el proceso (desencapsulación).</p>
+            <svg viewBox="0 0 600 200" width="100%" height="180" xmlns="http://www.w3.org/2000/svg">
+              <rect x="30" y="30" width="90" height="50" rx="6" fill="#f39c12"><animate attributeName="x" values="30;480;30" dur="9s" repeatCount="indefinite" /></rect>
+              <text x="45" y="60" fill="white" font-size="11">Datos (App)</text>
+              <rect x="150" y="25" width="100" height="55" rx="6" fill="#2ecc71"><animate attributeName="x" values="150;500;150" dur="9s" repeatCount="indefinite" /></rect>
+              <text x="165" y="58" fill="white" font-size="11">TCP/UDP Hdr</text>
+              <rect x="280" y="20" width="110" height="60" rx="6" fill="#3498db"><animate attributeName="x" values="280;520;280" dur="9s" repeatCount="indefinite" /></rect>
+              <text x="295" y="53" fill="white" font-size="11">IP Header</text>
+              <rect x="420" y="15" width="130" height="65" rx="6" fill="#9b59b6"><animate attributeName="x" values="420;540;420" dur="9s" repeatCount="indefinite" /></rect>
+              <text x="435" y="45" fill="white" font-size="10">Frame Hdr</text>
+              <text x="440" y="65" fill="#ddd" font-size="9">Trailer (CRC)</text>
+              <path d="M20,90 L570,90" stroke="#f1c40f" stroke-width="2" fill="none" stroke-dasharray="8 5"><animate attributeName="stroke-dashoffset" from="0" to="-26" dur="0.9s" repeatCount="indefinite" /></path>
+              <text x="230" y="108" fill="#f1c40f" font-size="12">Encapsulamiento descendente (origen)</text>
+            </svg>	
+			<p><span class="highlight">Unidad de datos por capa:</span> Datos (App) → Segmento (TCP) o Datagrama (UDP) → Paquete (IP) → Trama (Ethernet) → Bits (Físico).</p>
+          	
+			<ol>
+			<li><span class="highlight">Datos</span> (Capas de Aplicación/Presentación/Sesión): Se crean los datos originales.</li>
+			<li><span class="highlight">Segmento</span> (Capa de Transporte): Se recibe la información y se le agrega una cabecera (TCP o UDP) para gestionar la comunicación (puertos de origen/destino).</li>
+			<li><span class="highlight">Paquete</span> (Capa de Red): Se encapsula el segmento añadiendo una cabecera con direcciones lógicas (direcciones IP de origen y destino).</li>
+			<li><span class="highlight">Trama</span> (Capa de Enlace de Datos): Se añade una cabecera física (MAC address) y un verificador de errores (CRC)
+			al final para asegurar la integridad de la trama en la LAN.</li>
+			<li><span class="highlight">Bits</span> (Capa Física): La trama se convierte en una serie de bits (señales eléctricas, luz o radio) para ser transmitida por el medio.</li>
+			</ol>
+            </div>
+
+          <!-- SLIDE 11: Direccionamiento en las Capas -->
+          <div class="slide">
+            <h2>📍 11. Direccionamiento en las Capas</h2>
+            <div class="flex-row">
+              <div class="card">
+                <h3>Direcciones Físicas (Capa 2)</h3>
+                <p><strong>MAC address:</strong> 48 bits (6 bytes), única por NIC. Ej: <code>00:1A:2B:3C:4D:5E</code>. Utilizada en Ethernet, Wi-Fi. Asignada por el fabricante.</p>
+              </div>
+              <div class="card">
+                <h3>Direcciones Lógicas (Capa 3)</h3>
+                <p><strong>IPv4:</strong> 32 bits (ej. 192.168.1.10). <strong>IPv6:</strong> 128 bits (ej. 2001:db8::1). Jerárquicas y enrutables a nivel global.</p>
+              </div>
+              <div class="card">
+                <h3>Puertos (Capa 4)</h3>
+                <p>Identifican procesos/aplicaciones. <strong>TCP/UDP:</strong> números de 16 bits (0-65535). Ej: HTTP → 80, HTTPS → 443, DNS → 53, SSH → 22.</p>
+              </div>
+            </div>
+            <p style="margin-top:1rem;">El protocolo <strong>ARP</strong> (Address Resolution Protocol) traduce direcciones IP a direcciones MAC mediante broadcast en la capa de enlace.</p>
+          </div>
+
+          <!-- SLIDE 12: Protocolos Clave por Capa -->
+          <div class="slide">
+            <h2>📋 12. Protocolos Clave por Capa</h2>
+            <table>
+              <tr><th>Capa OSI</th><th>Capa TCP/IP</th><th>Protocolos Representativos</th><th>Puerto/Identificador</th></tr>
+              <tr><td>7 - Aplicación</td><td>Aplicación</td><td>HTTP, HTTPS, FTP, SMTP, DNS, DHCP, SSH, Telnet</td><td>80, 443, 21, 25, 53, 67/68, 22, 23</td></tr>
+              <tr><td>6 - Presentación</td><td>(incluido)</td><td>SSL/TLS, MIME, compresión, cifrado</td><td>—</td></tr>
+              <tr><td>5 - Sesión</td><td>(incluido)</td><td>NetBIOS, RPC, PPTP</td><td>139, 135, 1723</td></tr>
+              <tr><td>4 - Transporte</td><td>Transporte</td><td>TCP, UDP, SCTP</td><td>Protocolo IP 6 (TCP), 17 (UDP)</td></tr>
+              <tr><td>3 - Red</td><td>Internet</td><td>IPv4, IPv6, ICMP, OSPF, BGP, IPsec</td><td>Protocolo IP 1 (ICMP), 89 (OSPF)</td></tr>
+              <tr><td>2 - Enlace</td><td>Acceso a Red</td><td>Ethernet (802.3), Wi-Fi (802.11), PPP, ARP</td><td>EtherType 0x0800 (IPv4), 0x0806 (ARP)</td></tr>
+              <tr><td>1 - Física</td><td>(incluido)</td><td>1000BASE-T, 1000BASE-SX, RS-232</td><td>—</td></tr>
+            </table>
+            <p><span class="highlight">Nota:</span> Los números de puerto son administrados por IANA (Internet Assigned Numbers Authority).</p>
+          </div>
+
+          <!-- SLIDE 13: Quiz Interactivo -->
+          <div class="slide" id="quizSlide">
+            <h2>🧠 13. Quiz Interactivo – Comprueba tu Aprendizaje</h2>
+            <p style="margin-bottom: 1rem;">Pon a prueba tus conocimientos sobre los modelos OSI y TCP/IP.</p>
+            <div id="quizBox" style="background: rgba(18,32,50,0.9); padding: 2rem; border-radius: 1.5rem; border: 1px solid #2e4b6e;">
+              <p id="questionText" style="font-size: 1.2rem; margin-bottom: 1rem; font-weight: 600;"></p>
+              <div id="optionsContainer" style="display: flex; flex-direction: column; gap: 0.6rem;"></div>
+              <p id="quizFeedback" style="margin-top: 1rem; font-weight: 600; min-height: 1.5rem;"></p>
+              <button id="nextQuestionBtn" style="display: none; margin-top: 1rem;" onclick="nextQuizQuestion()">Siguiente Pregunta ❯</button>
+              <p id="quizCounter" style="margin-top: 0.5rem; color: #aac8ff; font-size: 0.9rem;"></p>
+            </div>
+            <p style="margin-top: 1rem; color: #8aa0b8;">Preguntas basadas en datos reales de los estándares ISO/IEC 7498 y RFC 1122.</p>
+          </div>
+
+        </div><!-- Fin slidesTrack -->
+      </div><!-- Fin slidesContainer -->
+
+      <!-- FLECHA DERECHA -->
+      <div class="arrow-btn" id="nextArrow" onclick="changeSlide(1)">❯</div>
+    </div><!-- Fin slides-main-container -->
+
+    <!-- INDICADORES INFERIORES -->
+    <div class="nav-controls">
+      <div class="dot-indicators" id="dotIndicators"></div>
+      <span class="page-indicator" id="pageIndicator"></span>
+    </div>
+  </div><!-- Fin presentation-wrapper -->
+
+  <script>
+    // ==================== SISTEMA DE NAVEGACIÓN ====================
+    const slidesTrack = document.getElementById('slidesTrack');
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+    let currentSlide = 0;
+
+    const prevArrow = document.getElementById('prevArrow');
+    const nextArrow = document.getElementById('nextArrow');
+    const dotContainer = document.getElementById('dotIndicators');
+    const pageIndicator = document.getElementById('pageIndicator');
+
+    // Crear dots automáticamente
+    function createDots() {
+      dotContainer.innerHTML = '';
+      for (let i = 0; i < totalSlides; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'dot';
+        if (i === 0) dot.classList.add('active');
+        dot.setAttribute('data-index', i);
+        dot.addEventListener('click', function() {
+          goToSlide(parseInt(this.getAttribute('data-index')));
+        });
+        dotContainer.appendChild(dot);
+      }
+    }
+
+    // Actualizar la posición del track
+    function updateSlidePosition() {
+      slidesTrack.style.transform = `translateX(-${currentSlide * 100}%)`;
+
+      // Actualizar dots
+      const dots = document.querySelectorAll('.dot');
+      dots.forEach((dot, index) => {
+        if (index === currentSlide) {
+          dot.classList.add('active');
+        } else {
+          dot.classList.remove('active');
+        }
+      });
+
+      // Actualizar indicador de página
+      pageIndicator.textContent = `Sección ${currentSlide + 1} de ${totalSlides}`;
+
+      // Actualizar estado de flechas
+      if (currentSlide === 0) {
+        prevArrow.classList.add('disabled');
+      } else {
+        prevArrow.classList.remove('disabled');
+      }
+
+      if (currentSlide === totalSlides - 1) {
+        nextArrow.classList.add('disabled');
+      } else {
+        nextArrow.classList.remove('disabled');
+      }
+    }
+
+    // Ir a una slide específica
+    function goToSlide(index) {
+      if (index >= 0 && index < totalSlides) {
+        currentSlide = index;
+        updateSlidePosition();
+      }
+    }
+
+    // Cambiar slide (para las flechas)
+    function changeSlide(direction) {
+      const newIndex = currentSlide + direction;
+      if (newIndex >= 0 && newIndex < totalSlides) {
+        currentSlide = newIndex;
+        updateSlidePosition();
+      }
+    }
+
+    // Hacer las funciones globales para los onclick
+    window.changeSlide = changeSlide;
+    window.goToSlide = goToSlide;
+
+    // Navegación con teclado (opcional, pero mantenida por si acaso)
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'ArrowLeft') {
+        changeSlide(-1);
+      } else if (e.key === 'ArrowRight') {
+        changeSlide(1);
+      }
+    });
+
+    // ==================== SISTEMA DE QUIZ ====================
+    const quizQuestions = [
+      {
+        text: "1. ¿En qué año se publicó el estándar ISO/IEC 7498 del modelo OSI?",
+        options: ["1984", "1977", "1989", "1991"],
+        correct: "1984",
+        explanation: "✅ ¡Correcto! El modelo OSI fue publicado por ISO en 1984 como estándar ISO/IEC 7498."
+      },
+      {
+        text: "2. ¿Cuántas capas tiene el modelo TCP/IP según el RFC 1122?",
+        options: ["7 capas", "5 capas", "4 capas", "3 capas"],
+        correct: "4 capas",
+        explanation: "✅ ¡Correcto! El modelo TCP/IP tiene 4 capas: Aplicación, Transporte, Internet y Acceso a la Red."
+      },
+      {
+        text: "3. ¿Qué protocolo opera en la capa de Transporte de TCP/IP proporcionando comunicación confiable?",
+        options: ["IP", "HTTP", "TCP", "Ethernet"],
+        correct: "TCP",
+        explanation: "✅ ¡Correcto! TCP (Transmission Control Protocol) es orientado a conexión y proporciona entrega confiable."
+      },
+      {
+        text: "4. En el modelo OSI, ¿cómo se denomina la capa número 2?",
+        options: ["Capa de Red", "Capa de Enlace de Datos", "Capa de Sesión", "Capa Física"],
+        correct: "Capa de Enlace de Datos",
+        explanation: "✅ ¡Correcto! La capa 2 es Enlace de Datos (Data Link), donde operan Ethernet y las direcciones MAC."
+      },
+      {
+        text: "5. ¿Qué organismo desarrolló el modelo OSI?",
+        options: ["IETF", "IEEE", "ISO", "DARPA"],
+        correct: "ISO",
+        explanation: "✅ ¡Correcto! ISO (International Organization for Standardization) desarrolló el modelo OSI."
+      }
+    ];
+
+    let currentQuestion = 0;
+    const questionText = document.getElementById('questionText');
+    const optionsContainer = document.getElementById('optionsContainer');
+    const quizFeedback = document.getElementById('quizFeedback');
+    const nextBtn = document.getElementById('nextQuestionBtn');
+    const quizCounter = document.getElementById('quizCounter');
+
+    function loadQuestion(index) {
+      if (index >= quizQuestions.length) {
+        questionText.textContent = "🎉 ¡Felicitaciones! Has completado el quiz.";
+        optionsContainer.innerHTML = "";
+        quizFeedback.textContent = "Has demostrado un excelente conocimiento de los modelos de referencia OSI y TCP/IP.";
+        nextBtn.style.display = 'none';
+        quizCounter.textContent = "Quiz finalizado.";
+        return;
+      }
+
+      const q = quizQuestions[index];
+      questionText.textContent = q.text;
+      optionsContainer.innerHTML = "";
+      quizFeedback.textContent = "";
+      nextBtn.style.display = 'none';
+      quizCounter.textContent = `Pregunta ${index + 1} de ${quizQuestions.length}`;
+
+      q.options.forEach(opt => {
+        const div = document.createElement('div');
+        div.className = 'quiz-option';
+        div.style.cssText = 'background: #1f3142; margin: 0.3rem 0; padding: 0.8rem; border-radius: 1rem; cursor: pointer; transition: all 0.2s; border: 1px solid #2e4b6e;';
+        div.textContent = opt;
+        div.addEventListener('mouseenter', () => { div.style.background = '#2c4b6e'; });
+        div.addEventListener('mouseleave', () => { div.style.background = '#1f3142'; });
+        div.addEventListener('click', function() {
+          checkAnswer(opt, q.correct, q.explanation);
+        });
+        optionsContainer.appendChild(div);
+      });
+    }
+
+    function checkAnswer(selected, correct, explanation) {
+      const allOptions = optionsContainer.querySelectorAll('.quiz-option');
+      allOptions.forEach(opt => {
+        opt.style.pointerEvents = 'none';
+        if (opt.textContent === correct) {
+          opt.style.background = '#2e7d32';
+          opt.style.borderColor = '#4caf50';
+        } else if (opt.textContent === selected && selected !== correct) {
+          opt.style.background = '#a13d3d';
+          opt.style.borderColor = '#f44336';
+        }
+      });
+
+      if (selected === correct) {
+        quizFeedback.innerHTML = `✅ ${explanation}`;
+        quizFeedback.style.color = '#4caf50';
+      } else {
+        quizFeedback.innerHTML = `❌ Incorrecto. La respuesta correcta es: "${correct}". ${explanation}`;
+        quizFeedback.style.color = '#f44336';
+      }
+
+      if (currentQuestion < quizQuestions.length - 1) {
+        nextBtn.style.display = 'inline-block';
+      } else {
+        nextBtn.style.display = 'none';
+        quizCounter.textContent = "Quiz finalizado. ¡Excelente trabajo!";
+      }
+    }
+
+    function nextQuizQuestion() {
+      currentQuestion++;
+      loadQuestion(currentQuestion);
+    }
+
+    window.nextQuizQuestion = nextQuizQuestion;
+
+    // ==================== INICIALIZACIÓN ====================
+    function init() {
+      createDots();
+      updateSlidePosition();
+      loadQuestion(0);
+    }
+
+    // Iniciar cuando el DOM esté listo
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
